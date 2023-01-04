@@ -16,24 +16,36 @@ function MovieCard({ movieId }) {
     )
       .then((res) => res.json())
       .then((data) => {
-        setImage(`https://image.tmdb.org/t/p/original/${data.poster_path}`)
+        if(data.poster_path){
+          setImage(`https://image.tmdb.org/t/p/original/${data.poster_path ?? ''}`);
+        } else {
+          setImage(false)
+        }
       });
   }, []);
 
-  return <MovieContainer>{image && <img src={image} />}</MovieContainer>;
+  return (
+    <>
+      {image && (
+        <MovieContainer>
+          <img src={image} />
+        </MovieContainer>
+      )}
+    </>
+  );
 }
 
 const MovieContainer = styled.div`
+  cursor: pointer;
+  transition: 0.3s;
 
-    cursor: pointer;
-    transition: 0.3s;
-
-    &:hover{
-        transform: scale(1.05);
-    }
+  &:hover {
+    transform: scale(1.05);
+  }
 
   img {
     width: 150px;
+    height: 240px;
     border-radius: 4px;
   }
 `;

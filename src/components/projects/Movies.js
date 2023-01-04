@@ -6,6 +6,7 @@ import MovieCard from "./MovieCard";
 
 function Movies({ sort, title }) {
   const [movies, setMovies] = useState();
+  const [isActive, setIsActive] = useState();
   const container = useRef();
 
   useEffect(() => {
@@ -38,18 +39,18 @@ function Movies({ sort, title }) {
       <Title>
         <h2>{title}</h2>
       </Title>
-      <MoviesContainer ref={container}>
+      <MoviesContainer ref={container} onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
         {movies?.map((movie) => (
           <MovieCard movieId={movie.id} key={movie.id} />
         ))}
         <ToLeft />
         <ToRight />
-        <Left onClick={backMovies}>
+        <Left onClick={backMovies} active={isActive}>
           <button>
             <IoCaretBack />
           </button>
         </Left>
-        <Right onClick={nextMovies}>
+        <Right onClick={nextMovies} active={isActive}>
           <button>
             <IoCaretForward />
           </button>
@@ -65,6 +66,7 @@ const Right = styled.div`
   justify-content: center;
   align-items: center;
   right: -10px;
+  opacity: ${props => props.active ? '1' : '0'};
 
   button {
     height: 240px;
@@ -87,6 +89,8 @@ const Left = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: 0.3s;
+  opacity: ${props => props.active ? '1' : '0'};
 
   button {
     height: 240px;
