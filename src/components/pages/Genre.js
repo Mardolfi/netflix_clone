@@ -40,6 +40,8 @@ function Genre() {
   useEffect(() => {
     setIsMovieActive(true);
     setIsLoadingActive(true);
+    setLogoFilm(false);
+    setBackFilm(false);
 
     setTimeout(() => {
       setIsMovieActive(false);
@@ -105,6 +107,8 @@ function Genre() {
                     setLogoFilm(data.hdmovielogo[0].url);
                     setIsLoadingActive(false);
                   } else {
+                    setLogoFilm(false);
+                    setBackFilm(false);
                     tryAgain(0);
                   }
                 });
@@ -161,6 +165,8 @@ function Genre() {
                         setLogoFilm(data.hdtvlogo[0].url);
                         setIsLoadingActive(false);
                       } else {
+                        setLogoFilm(false);
+                        setBackFilm(false);
                         tryAgain(0);
                       }
                     });
@@ -171,6 +177,10 @@ function Genre() {
   }, [type, id]);
 
   function tryAgain(current) {
+    setLogoFilm(false);
+    setBackFilm(false);
+    setIsLoadingActive(true);
+
     fetch(
       `https://api.themoviedb.org/3/discover/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&sort_by=popularity.desc&include_video=true&page=1&with_companies=Netflix&with_genres=${id}`,
       {
@@ -229,6 +239,8 @@ function Genre() {
                     setLogoFilm(data.hdmovielogo[0].url);
                     setIsLoadingActive(false);
                   } else {
+                    setLogoFilm(false);
+                    setBackFilm(false);
                     tryAgain(current + 1);
                   }
                 });
@@ -282,6 +294,8 @@ function Genre() {
                         setLogoFilm(data.hdtvlogo[0].url);
                         setIsLoadingActive(false);
                       } else {
+                        setLogoFilm(false);
+                        setBackFilm(false);
                         tryAgain(current + 1);
                       }
                     });
@@ -314,7 +328,7 @@ function Genre() {
           <BrowseHeader active={activeHeader}>
             <Links>
               <img src={logo} />
-              <CustomLink to={"/browse/movie"}>Início</CustomLink>
+              <CustomLink to={"/browse/movie"}>Filmes</CustomLink>
               <CustomLink to={"/browse/tv"}>Séries</CustomLink>
               <Categories type={type}>
                 Categorias
@@ -364,14 +378,14 @@ function Genre() {
           <MoviesContainer>
             <Movies
               sort={type == "movie" ? "popularity.desc" : "revenue.desc"}
-              title={"Em destaque"}
+              title={"Populares na Netflix"}
               type={type}
               page={type == "movie" ? 1 : 2}
               genre={id}
             />
             <Movies
               sort={type == "movie" ? "revenue.desc" : "popularity.desc"}
-              title={"Campeões de bilheteria"}
+              title={"Em alta"}
               type={type}
               page={type == "movie" ? 1 : 1}
               genre={id}
@@ -412,6 +426,7 @@ function Genre() {
 
 const Categories = styled.div`
   color: white;
+  cursor: pointer;
   text-decoration: none;
   position: relative;
   top: 45px;

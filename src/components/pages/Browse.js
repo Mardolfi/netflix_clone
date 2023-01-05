@@ -145,7 +145,7 @@ function Browse() {
           <BrowseHeader active={activeHeader}>
             <Links>
               <img src={logo} />
-              <CustomLink to={"/browse/movie"}>Início</CustomLink>
+              <CustomLink to={"/browse/movie"}>Filmes</CustomLink>
               <CustomLink to={"/browse/tv"}>Séries</CustomLink>
               <Categories type={type}>
                 Categorias
@@ -214,10 +214,12 @@ function Browse() {
             />
             <Movies
               sort={"popularity.desc"}
-              title={type == 'movie' ? "Filmes românticos" : "Séries de policial"}
+              title={
+                type == "movie" ? "Filmes românticos" : "Séries de policial"
+              }
               type={type}
               page={1}
-              genre={type == 'movie' ? 10749 : 80}
+              genre={type == "movie" ? 10749 : 80}
             />
             <Movies
               sort={"popularity.desc"}
@@ -245,7 +247,7 @@ function Browse() {
               title={"Animações para toda a família"}
               type={type}
               page={2}
-              genre={type == 'movie' ? 16 : 10762}
+              genre={type == "movie" ? 16 : 10762}
             />
           </MoviesContainer>
           <Footer>
@@ -275,6 +277,7 @@ function Browse() {
 }
 
 const Categories = styled.div`
+  cursor: pointer;
   color: white;
   text-decoration: none;
   position: relative;

@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { IoCaretBack } from "react-icons/io5";
 import { IoCaretForward } from "react-icons/io5";
+import {MdNavigateNext} from 'react-icons/md'
 import MovieCard from "./MovieCard";
+import { useNavigate } from "react-router-dom";
 
 function Movies({ sort, title, type, page, genre }) {
   const [movies, setMovies] = useState();
   const [isActive, setIsActive] = useState();
   const container = useRef();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(
@@ -36,10 +39,16 @@ function Movies({ sort, title, type, page, genre }) {
     container.current.appendChild(movieCards[0]);
   }
 
+  function sectionNavigate() {
+    navigate(`/section/${type}/${genre || sort}`)
+  }
+
   return (
     <Container>
-      <Title>
+      <Title onClick={sectionNavigate}>
         <h2>{title}</h2>
+        <p>Ver tudo</p>
+        <MdNavigateNext />
       </Title>
       <MoviesContainer
         ref={container}
@@ -161,6 +170,37 @@ const ToRight = styled.div`
 const Title = styled.div`
   padding: 0px 50px;
   color: white;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  h2:hover ~ p{
+    opacity: 1;
+    transform: translateX(10px);
+  }
+
+  h2:hover ~ *:nth-child(3){
+    opacity: 1;
+    transform: translateX(10px);
+  }
+
+  p{
+    opacity: 0;
+    transform: translateX(-10px);
+    color: #54B9AE;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: 0.3s;
+  }
+
+  *:nth-child(3){
+    transform: translateX(-50px);
+    opacity: 0;
+    transition: 0.3s;
+    color: #54B9AE;
+    width: 25px;
+    height: 25px;
+  }
 `;
 
 export default Movies;

@@ -2,18 +2,15 @@ import loading from "../../img/loading.svg";
 import { useEffect, useRef, useState } from "react";
 import logo from "../../img/logo.png";
 import styled from "styled-components";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CustomLink from "../projects/CustomLink";
 import { AiOutlineSearch, AiOutlineInfoCircle } from "react-icons/ai";
 import { RiArrowDropDownLine, RiGlobalFill } from "react-icons/ri";
 import MovieCard from "../projects/MovieCard";
 
-function SearchPage() {
+function Section() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const type = location.search.split("/")[1];
-  let query = location.search.split("/")[0];
-  query = query.split("=")[1];
+  const {id, type} = useParams();
 
   const [activeHeader, setActiveHeader] = useState(false);
   const [isLoadingActive, setIsLoadingActive] = useState();
@@ -54,17 +51,10 @@ function SearchPage() {
 
   useEffect(() => {
     setNoMoreMovies(false);
-    setSearchActive(true);
-    searchInput.current.value = query.replace("%20", " ");
-    searchInput.current.focus();
     setIsLoadingActive(true);
 
-    if (searchInput.current.value.length === 0) {
-      navigate(`/browse/${type}`);
-    }
-
     fetch(
-      `https://api.themoviedb.org/3/search/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&query=${query}&page=1&include_adult=false`,
+      `https://api.themoviedb.org/3/discover/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&with_companies=Netflix&with_networks=Netflix&with_original_language=en&sort_by=${id}&page=1&include_adult=false&with_genres=${id}`,
       {
         method: "GET",
         headers: {
@@ -84,11 +74,11 @@ function SearchPage() {
           setNoMovies(true);
         }
       });
-  }, [query]);
+  }, []);
 
   function moreMovies() {
     fetch(
-      `https://api.themoviedb.org/3/search/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&query=${query}&page=${
+      `https://api.themoviedb.org/3/discover/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&with_networks=Netflix&with_original_language=en&sort_by=${id}&with_genres=${id}&page=${
         currentPage + 1
       }&include_adult=false`,
       {
@@ -441,4 +431,4 @@ const Search = styled.div`
   }
 `;
 
-export default SearchPage;
+export default Section;
