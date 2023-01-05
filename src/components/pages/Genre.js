@@ -9,9 +9,9 @@ import Movies from "../projects/Movies";
 import loading from "../../img/loading.svg";
 import { useNavigate, useParams } from "react-router-dom";
 
-function Browse() {
+function Genre() {
   const navigate = useNavigate();
-  const { type } = useParams();
+  const { type, id } = useParams();
 
   const [searchActive, setSearchActive] = useState();
   const [isMovieActive, setIsMovieActive] = useState(true);
@@ -46,7 +46,133 @@ function Browse() {
     }, 6000);
 
     fetch(
-      `https://api.themoviedb.org/3/discover/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&sort_by=popularity.desc&include_video=true&page=1&with_companies=Netflix`,
+      `https://api.themoviedb.org/3/discover/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&sort_by=popularity.desc&include_video=true&page=1&with_companies=Netflix&with_genres=${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        fetch(
+          `https://api.themoviedb.org/3/${type}/${data.results[0].id}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setDescFilm(data.overview);
+
+            if (!data.imdb_id) {
+              tryAgain(0);
+            }
+
+            if (type == "movie") {
+              fetch(
+                `http://webservice.fanart.tv/v3/movies/${data.imdb_id}?api_key=fb26894399d04645e541fadc9bb46a81`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              )
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data.status == "error") {
+                    tryAgain(0);
+                  }
+
+                  const isHaveBackground = Object.keys(data);
+
+                  if (
+                    (isHaveBackground.includes("moviebackground") &&
+                      isHaveBackground.includes("hdmovielogo")) ||
+                    (isHaveBackground.includes("moviethumb") &&
+                      isHaveBackground.includes("hdmovielogo"))
+                  ) {
+                    if (isHaveBackground.includes("moviebackground")) {
+                      setBackFilm(data.moviebackground[0].url);
+                    } else {
+                      setBackFilm(data.moviethumb[0].url);
+                    }
+                    setLogoFilm(data.hdmovielogo[0].url);
+                    setIsLoadingActive(false);
+                  } else {
+                    tryAgain(0);
+                  }
+                });
+            } else {
+              fetch(
+                `https://api.tvmaze.com/singlesearch/shows?q=${data.original_name}`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              )
+                .then((res) => {
+                  if (res.status !== 200) {
+                    tryAgain(0);
+                    return false;
+                  } else {
+                    return res.json();
+                  }
+                })
+                .then((data) => {
+                  if (!data.externals.thetvdb) {
+                    tryAgain(0);
+                  }
+                  fetch(
+                    `http://webservice.fanart.tv/v3/tv/${data.externals.thetvdb}?api_key=fb26894399d04645e541fadc9bb46a81`,
+                    {
+                      method: "GET",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    }
+                  )
+                    .then((res) => res.json())
+                    .then((data) => {
+                      if (data.status == "error") {
+                        tryAgain(0);
+                      }
+
+                      const isHaveBackground = Object.keys(data);
+
+                      if (
+                        (isHaveBackground.includes("showbackground") &&
+                          isHaveBackground.includes("hdtvlogo")) ||
+                        (isHaveBackground.includes("tvthumb") &&
+                          isHaveBackground.includes("hdtvlogo"))
+                      ) {
+                        if (isHaveBackground.includes("showbackground")) {
+                          setBackFilm(data.showbackground[0].url);
+                        } else {
+                          setBackFilm(data.tvthumb[0].url);
+                        }
+                        setLogoFilm(data.hdtvlogo[0].url);
+                        setIsLoadingActive(false);
+                      } else {
+                        tryAgain(0);
+                      }
+                    });
+                });
+            }
+          });
+      });
+  }, [type, id]);
+
+  function tryAgain(current) {
+    fetch(
+      `https://api.themoviedb.org/3/discover/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&sort_by=popularity.desc&include_video=true&page=1&with_companies=Netflix&with_genres=${id}`,
       {
         method: "GET",
         headers: {
@@ -58,7 +184,7 @@ function Browse() {
       .then((data) => {
         fetch(
           `https://api.themoviedb.org/3/${type}/${
-            data.results[type == "movie" ? 12 : 0].id
+            data.results[current + 1].id
           }?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR`,
           {
             method: "GET",
@@ -83,10 +209,28 @@ function Browse() {
               )
                 .then((res) => res.json())
                 .then((data) => {
-                  setLogoFilm(data.hdmovielogo[0].url);
-                  setBackFilm(data.moviebackground[0].url);
+                  if (data.status == "error") {
+                    tryAgain(current + 1);
+                  }
 
-                  setIsLoadingActive(false);
+                  const isHaveBackground = Object.keys(data);
+
+                  if (
+                    (isHaveBackground.includes("moviebackground") &&
+                      isHaveBackground.includes("hdmovielogo")) ||
+                    (isHaveBackground.includes("moviethumb") &&
+                      isHaveBackground.includes("hdmovielogo"))
+                  ) {
+                    if (isHaveBackground.includes("moviebackground")) {
+                      setBackFilm(data.moviebackground[0].url);
+                    } else {
+                      setBackFilm(data.moviethumb[0].url);
+                    }
+                    setLogoFilm(data.hdmovielogo[0].url);
+                    setIsLoadingActive(false);
+                  } else {
+                    tryAgain(current + 1);
+                  }
                 });
             } else {
               fetch(
@@ -98,7 +242,14 @@ function Browse() {
                   },
                 }
               )
-                .then((res) => res.json())
+                .then((res) => {
+                  if (res.status !== 200) {
+                    tryAgain(current + 1);
+                    return false;
+                  } else {
+                    return res.json();
+                  }
+                })
                 .then((data) => {
                   fetch(
                     `http://webservice.fanart.tv/v3/tv/${data.externals.thetvdb}?api_key=fb26894399d04645e541fadc9bb46a81`,
@@ -111,16 +262,34 @@ function Browse() {
                   )
                     .then((res) => res.json())
                     .then((data) => {
-                      setLogoFilm(data.hdtvlogo[0].url);
-                      setBackFilm(data.showbackground[0].url);
+                      if (data.status == "error") {
+                        tryAgain(current + 1);
+                      }
 
-                      setIsLoadingActive(false);
+                      const isHaveBackground = Object.keys(data);
+
+                      if (
+                        (isHaveBackground.includes("showbackground") &&
+                          isHaveBackground.includes("hdtvlogo")) ||
+                        (isHaveBackground.includes("tvthumb") &&
+                          isHaveBackground.includes("hdtvlogo"))
+                      ) {
+                        if (isHaveBackground.includes("showbackground")) {
+                          setBackFilm(data.showbackground[0].url);
+                        } else {
+                          setBackFilm(data.tvthumb[0].url);
+                        }
+                        setLogoFilm(data.hdtvlogo[0].url);
+                        setIsLoadingActive(false);
+                      } else {
+                        tryAgain(current + 1);
+                      }
                     });
                 });
             }
           });
       });
-  }, [type]);
+  }
 
   function searchMovie(query) {
     navigate(`/search?q=${query}/${type}`);
@@ -195,57 +364,24 @@ function Browse() {
           <MoviesContainer>
             <Movies
               sort={type == "movie" ? "popularity.desc" : "revenue.desc"}
-              title={"Populares na Netflix"}
+              title={"Em destaque"}
               type={type}
-              page={type == "movie" ? 1 : 1}
+              page={type == "movie" ? 1 : 2}
+              genre={id}
             />
             <Movies
               sort={type == "movie" ? "revenue.desc" : "popularity.desc"}
-              title={"Em alta"}
+              title={"Campeões de bilheteria"}
               type={type}
               page={type == "movie" ? 1 : 1}
+              genre={id}
             />
             <Movies
-              sort={"popularity.desc"}
-              title={"Pra fazer a família toda rir"}
+              sort={type == "movie" ? "vote_count.desc" : "popularity.desc"}
+              title={"Os mais queridinhos da galera"}
               type={type}
-              page={1}
-              genre={35}
-            />
-            <Movies
-              sort={"popularity.desc"}
-              title={type == 'movie' ? "Filmes românticos" : "Séries de policial"}
-              type={type}
-              page={1}
-              genre={type == 'movie' ? 10749 : 80}
-            />
-            <Movies
-              sort={"popularity.desc"}
-              title={"Drama"}
-              type={type}
-              page={1}
-              genre={18}
-            />
-            <Movies
-              sort={"popularity.desc"}
-              title={"Documentários"}
-              type={type}
-              page={1}
-              genre={99}
-            />
-            <Movies
-              sort={"popularity.desc"}
-              title={"Comédia"}
-              type={type}
-              page={2}
-              genre={35}
-            />
-            <Movies
-              sort={"popularity.desc"}
-              title={"Animações para toda a família"}
-              type={type}
-              page={2}
-              genre={type == 'movie' ? 16 : 10762}
+              page={type == "movie" ? 1 : 2}
+              genre={id}
             />
           </MoviesContainer>
           <Footer>
@@ -408,6 +544,8 @@ const MovieInfo = styled.div`
     transition: 0.4s;
     opacity: ${(props) => (props.active ? "1" : "0")};
     pointer-events: ${(props) => (props.active ? "all" : "none")};
+    height: 100px;
+    overflow: hidden;
   }
 `;
 
@@ -530,4 +668,4 @@ const Search = styled.div`
   }
 `;
 
-export default Browse;
+export default Genre;
