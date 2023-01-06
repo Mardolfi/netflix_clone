@@ -136,7 +136,6 @@ const Container = styled.div`
   gap: 15px;
   position: relative;
   z-index: 1;
-  overflow: hidden;
 `;
 
 const MoviesContainer = styled.div`

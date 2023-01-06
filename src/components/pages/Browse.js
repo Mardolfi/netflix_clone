@@ -20,6 +20,7 @@ function Browse() {
   const [backFilm, setBackFilm] = useState();
   const [logoFilm, setLogoFilm] = useState();
   const [descFilm, setDescFilm] = useState();
+  const [idFilm, setIdFilm] = useState();
   const [activeHeader, setActiveHeader] = useState(false);
   const searchInput = useRef();
 
@@ -58,7 +59,7 @@ function Browse() {
       .then((data) => {
         fetch(
           `https://api.themoviedb.org/3/${type}/${
-            data.results[type == "movie" ? 12 : 0].id
+            data.results[type == "movie" ? 0 : 0].id
           }?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR`,
           {
             method: "GET",
@@ -70,6 +71,7 @@ function Browse() {
           .then((res) => res.json())
           .then((data) => {
             setDescFilm(data.overview);
+            setIdFilm(data.id)
 
             if (type == "movie") {
               fetch(
@@ -111,7 +113,7 @@ function Browse() {
                   )
                     .then((res) => res.json())
                     .then((data) => {
-                      setLogoFilm(data.hdtvlogo[0].url);
+                      setLogoFilm(data.hdtvlogo[1].url);
                       setBackFilm(data.showbackground[0].url);
 
                       setIsLoadingActive(false);
@@ -133,6 +135,10 @@ function Browse() {
       setActiveHeader(false);
     }
   });
+
+  function getFilm() {
+    navigate(`/${type}/${idFilm}`)
+  }
 
   return (
     <>
@@ -186,8 +192,8 @@ function Browse() {
                 <button>
                   <IoCaretForward /> Assistir
                 </button>
-                <button>
-                  <AiOutlineInfoCircle /> Mais informações
+                <button onClick={() => getFilm()}>
+                  <AiOutlineInfoCircle/> Mais informações
                 </button>
               </Buttons>
             </MovieInfo>
@@ -343,10 +349,6 @@ const PrincipalMovie = styled.div`
   height: 100vh;
 
   img {
-    width: 100%;
-  }
-
-  iframe {
     width: 100%;
   }
 `;

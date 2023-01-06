@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 function MovieCard({ movieId, type, sort, page, index, genre }) {
   const [image, setImage] = useState();
   const [loadingActive, setLoadingActive] = useState();
+  const [filmId, setFilmId] = useState();
+  const navigate = useNavigate();
+
+  function activeMovie() {
+    navigate(`/${type}/${filmId}`)
+  }
 
   useEffect(() => {
     setLoadingActive(true);
@@ -19,26 +26,27 @@ function MovieCard({ movieId, type, sort, page, index, genre }) {
     )
       .then((res) => res.json())
       .then((data) => {
-        const isHavePosterPath = Object.keys(data)
+        const isHavePosterPath = Object.keys(data);
 
-        if(isHavePosterPath.includes('poster_path')){
+        if (isHavePosterPath.includes("poster_path")) {
           if (data.poster_path !== null) {
-            setImage(
-              `https://image.tmdb.org/t/p/original/${data.poster_path}`
-            );
+            setImage(`https://image.tmdb.org/t/p/original/${data.poster_path}`);
             setLoadingActive(false);
+            setFilmId(data.id)
           } else {
-            tryAgain(page)
+            tryAgain(page);
           }
         } else {
-          tryAgain(page)
+          tryAgain(page);
         }
       });
   }, []);
 
   function tryAgain(page) {
     fetch(
-      `https://api.themoviedb.org/3/discover/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&sort_by=${sort}&page=${page + 1}&with_companies=Netflix&with_networks=Netflix&with_original_language=en&with_genres=${genre}`,
+      `https://api.themoviedb.org/3/discover/${type}?api_key=b15859993b7efb96feb59a2bc9c249e5&language=pt-BR&sort_by=${sort}&page=${
+        page + 1
+      }&with_companies=Netflix&with_networks=Netflix&with_original_language=en&with_genres=${genre}`,
       {
         method: "GET",
         headers: {
@@ -48,19 +56,20 @@ function MovieCard({ movieId, type, sort, page, index, genre }) {
     )
       .then((res) => res.json())
       .then((data) => {
-        const isHavePosterPath = Object.keys(data.results[index])
+        const isHavePosterPath = Object.keys(data.results[index]);
 
-        if(isHavePosterPath.includes('poster_path')){
+        if (isHavePosterPath.includes("poster_path")) {
           if (data.results[index].poster_path !== null) {
             setImage(
               `https://image.tmdb.org/t/p/original/${data.results[index].poster_path}`
             );
             setLoadingActive(false);
+            setFilmId(data.results[index].id)
           } else {
-            tryAgain(page + 1)
+            tryAgain(page + 1);
           }
         } else {
-          tryAgain(page + 1)
+          tryAgain(page + 1);
         }
       });
   }
@@ -68,8 +77,12 @@ function MovieCard({ movieId, type, sort, page, index, genre }) {
   return (
     <>
       {image && (
-        <MovieContainer>
-          {loadingActive ? <LoadingContainer /> : <img src={image} />}
+        <MovieContainer onClick={activeMovie}>
+          {loadingActive ? <LoadingContainer /> : (
+            <>
+            <img src={image} />
+            </>
+          )}
         </MovieContainer>
       )}
     </>
@@ -79,16 +92,17 @@ function MovieCard({ movieId, type, sort, page, index, genre }) {
 const MovieContainer = styled.div`
   cursor: pointer;
   transition: 0.3s;
-  height: 240px;
+  min-height: 240px;
   width: 150px;
+  display: flex;
 
-  &:hover {
+  :hover{
     transform: scale(1.05);
   }
 
   img {
-    width: inherit;
-    height: inherit;
+    width: 150px;
+    height: 240px;
     border-radius: 4px;
   }
 `;

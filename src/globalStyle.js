@@ -9,7 +9,8 @@ const GlobalStyle = createGlobalStyle`
 
     body{
         font-family: Arial, Helvetica, sans-serif;
+        overflow-x: hidden;
     }
-`
+`;
 
 export default GlobalStyle;

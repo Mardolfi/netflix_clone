@@ -19,6 +19,7 @@ function Genre() {
   const [isLoadingActive, setIsLoadingActive] = useState();
   const [backFilm, setBackFilm] = useState();
   const [logoFilm, setLogoFilm] = useState();
+  const [idFilm, setIdFilm] = useState();
   const [descFilm, setDescFilm] = useState();
   const [activeHeader, setActiveHeader] = useState(false);
   const searchInput = useRef();
@@ -69,6 +70,7 @@ function Genre() {
         )
           .then((res) => res.json())
           .then((data) => {
+            setIdFilm(data.id)
             setDescFilm(data.overview);
 
             if (!data.imdb_id) {
@@ -205,6 +207,7 @@ function Genre() {
         )
           .then((res) => res.json())
           .then((data) => {
+            setIdFilm(data.id)
             setDescFilm(data.overview);
 
             if (type == "movie") {
@@ -305,6 +308,10 @@ function Genre() {
       });
   }
 
+  function getFilm() {
+    navigate(`/${type}/${idFilm}`)
+  }
+
   function searchMovie(query) {
     navigate(`/search?q=${query}/${type}`);
   }
@@ -369,8 +376,8 @@ function Genre() {
                 <button>
                   <IoCaretForward /> Assistir
                 </button>
-                <button>
-                  <AiOutlineInfoCircle /> Mais informações
+                <button onClick={() => getFilm()}>
+                  <AiOutlineInfoCircle/> Mais informações
                 </button>
               </Buttons>
             </MovieInfo>
