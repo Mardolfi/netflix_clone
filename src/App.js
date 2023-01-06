@@ -5,6 +5,7 @@ import Login from "./components/pages/Login";
 import Movie from "./components/pages/Movie";
 import SearchPage from "./components/pages/SearchPage";
 import Section from "./components/pages/Section";
+import ActorsPage from "./components/pages/ActorsPage";
 import GlobalStyle from "./globalStyle";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/movie/:id" element={<Movie />} /> 
         <Route path="/tv/:id" element={<Movie />} /> 
         <Route path="/section/:type/:id" element={<Section />} />
+        <Route path="/actors/:type/:id" element={<ActorsPage />} />
       </Routes>
     </Router>
   );

@@ -126,7 +126,7 @@ function Browse() {
 
                 if (isHaveBackground.includes("hdmovielogo")) {
                   setLogoFilm(
-                    data.hdmovielogo[data.hdmovielogo.length - 1].url
+                    data.hdmovielogo[0].url
                   );
                 } else {
                   setLogoFilm(false);
@@ -289,7 +289,7 @@ function Browse() {
                   <p>{premiere}</p>
                   <p>DIRECTOR</p>
                   <p>{director}</p>
-                  <p>RUNTIME</p>
+                  {type == 'movie' ? <p>RUNTIME</p> : <p>SEASONS</p>}
                   <p>{runtime}</p>
                   <p>GENRE</p>
                   <p>
@@ -325,7 +325,7 @@ function Browse() {
                 </a>
               </Buttons>
               <ActorsContainer>
-                <Title onClick={""}>
+                <Title onClick={() => navigate(`/actors/${type}/${id}`)}>
                   <h2>Actors</h2>
                   <p>Ver tudo</p>
                   <MdNavigateNext />
@@ -483,6 +483,7 @@ const Lines = styled.div`
         color: #fff;
         font-size: 1.1rem;
         position: absolute;
+        z-index: 1;
         left: 30px;
         top: 350px;
       }
@@ -497,6 +498,10 @@ const Title = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+
+  h2{
+    text-shadow: 0px 2px 10px black;
+  }
 
   p {
     color: #54b9ae;
